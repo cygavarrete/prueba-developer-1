@@ -1,31 +1,36 @@
-import React from 'react';
-import productData from "../../content";
+import React, { useState, useEffect } from 'react';
 import { FaShoppingCart, FaRegBookmark, FaStar, FaFireAlt } from 'react-icons/fa';
+import axios from 'axios';
 import "./Body.scss";
 
 export default function App() {
-    const items = productData[0].results;
-    if (!items || items.length === 0) {
-        return <div>No hay datos disponibles</div>;
-    }
+    const [destinos, setDestinos] = useState([]);
+
+    useEffect(() => {
+        axios.get('https://private-f5cb41-pruebafrontend2024.apiary-mock.com/principal')
+            .then(response => {
+                setDestinos(response.data[0].masVendidos.destinos);
+            })
+            .catch(error => {
+                console.error('Error al obtener los datos de la API:', error);
+            });
+    }, []);
 
     return (
         <div className='App'>
-            {items.map((content) => (
-                <div className='productList' key={content.id}>
+            {destinos.map((destino, index) => (
+                <div className='productList' key={index}>
                     <div className='productCard'>
-                        <img src={content.image} alt='product-img' className='productImage' />
+                        <img src={destino.destinoImgUrl} alt='destino-img' className='productImage' />
                         <div className='productCard__content'>
-                            <h3 className='productName'>{content.name}</h3>
+                            <h3 className='productName'>{destino.disponible}</h3>
                             <div className='displayStack__1'>
-                                <div className='productPrice'>{content.species}</div>
-                                <div className='productSales'>{content.status}</div>
+                                <div className='productPrice'>
+                                    {destino.lm ? <img src={destino.logoLMUrl} alt='logo-lm' /> : null}
+                                    {destino.av ? <img src={destino.logoAVUrl} alt='logo-av' /> : null}
+                                </div>
                             </div>
-                            <div className='displayStack__2'>
-                                <div className='productTime'>{content.timeLeft}</div>
-                            </div>
-                            <button className='productButton' onClick={() => window.location.href = content.url}>
-                                Ver Detalles
+                            <button className='productButton' onClick={() => window.location.href = destino.btnUrl}> {destino.btnTexto}
                             </button>
                         </div>
                     </div>
